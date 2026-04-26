@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>what now?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #f0ede6;
+    --muted: #888580;
+    --faint: #3a3835;
+
+    --purple: #9b8fe8;
+    --purple-bg: rgba(155,143,232,0.08);
+    --teal: #4ecba5;
+    --teal-bg: rgba(78,203,165,0.08);
+    --coral: #e8845a;
+    --coral-bg: rgba(232,132,90,0.08);
+    --pink: #e07ca0;
+    --pink-bg: rgba(224,124,160,0.08);
+    --amber: #d4a342;
+    --amber-bg: rgba(212,163,66,0.08);
+    --green: #7ebe55;
+    --green-bg: rgba(126,190,85,0.08);
+    --blue: #5b9ee8;
+    --blue-bg: rgba(91,158,232,0.08);
+    --gray: #9e9b94;
+    --gray-bg: rgba(158,155,148,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow-x: hidden;
+  }
+
+  header {
+    padding: 2.5rem 3rem 1rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #clock {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  #date-line {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  main {
+    padding: 2rem 3rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .nudge-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .nudge-bar:hover {
+    border-color: var(--border-hover);
+    background: #1c1c1c;
+  }
+  .nudge-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .nudge-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  #nudge-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--text);
+    flex: 1;
+    transition: opacity 0.2s;
+  }
+  .nudge-hint {
+    font-size: 0.65rem;
+    color: var(--faint);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .sections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .section:hover { border-color: var(--border-hover); }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .activities {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .activity {
+    font-size: 0.85rem;
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1.4;
+    border: 1px solid transparent;
+  }
+  .activity:hover {
+    border-color: var(--border);
+  }
+  .activity.done {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .purple-section .activity:hover { background: var(--purple-bg); }
+  .teal-section .activity:hover { background: var(--teal-bg); }
+  .coral-section .activity:hover { background: var(--coral-bg); }
+  .pink-section .activity:hover { background: var(--pink-bg); }
+  .amber-section .activity:hover { background: var(--amber-bg); }
+  .green-section .activity:hover { background: var(--green-bg); }
+  .blue-section .activity:hover { background: var(--blue-bg); }
+  .gray-section .activity:hover { background: var(--gray-bg); }
+
+  footer {
+    padding: 1rem 3rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-q {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-style: italic;
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.9rem;
+  }
+
+  .reset-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .reset-btn:hover { color: var(--text); border-color: var(--border-hover); }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section { animation: fadeSlide 0.35s ease both; }
+  .section:nth-child(1) { animation-delay: 0.03s; }
+  .section:nth-child(2) { animation-delay: 0.06s; }
+  .section:nth-child(3) { animation-delay: 0.09s; }
+  .section:nth-child(4) { animation-delay: 0.12s; }
+  .section:nth-child(5) { animation-delay: 0.15s; }
+  .section:nth-child(6) { animation-delay: 0.18s; }
+  .section:nth-child(7) { animation-delay: 0.21s; }
+  .section:nth-child(8) { animation-delay: 0.24s; }
+</style>
+</head>
+<body>
+
+<header>
+  <div id="clock">12:00</div>
+  <div id="date-line">loading...</div>
+</header>
+
+<main>
+  <div class="nudge-bar" onclick="newNudge()">
+    <span class="nudge-label">do this instead</span>
+    <div class="nudge-divider"></div>
+    <span id="nudge-text">click for a random idea</span>
+    <span class="nudge-hint">click to shuffle</span>
+  </div>
+
+  <div class="sections-grid" id="sections-grid"></div>
+</main>
+
+<footer>
+  <span class="footer-q">did I live, connect, and express at least a little?</span>
+  <button class="reset-btn" onclick="resetAll()">reset all</button>
+</footer>
+
+<script>
+const SECTIONS = [
+  {
+    id: 'creative',
+    title: 'creative expression',
+    color: '#e8845a',
+    cls: 'coral-section',
+    activities: [
+      'work on a track — even just one loop',
+      'sketch or draw something, anything',
+      'experiment with an outfit',
+      'take photos with intention',
+      'write something — journal, idea, lyrics',
+    ]
+  },
+  {
+    id: 'physical',
+    title: 'physical & body',
+    color: '#4ecba5',
+    cls: 'teal-section',
+    activities: [
+      'go for a walk outside',
+      'work out or stretch',
+      'cook or eat something intentional',
+      'groom, style, take care of yourself',
+      'lie down and actually rest (no phone)',
+    ]
+  },
+  {
+    id: 'mental',
+    title: 'mental & inner life',
+    color: '#5b9ee8',
+    cls: 'blue-section',
+    activities: [
+      'meditate for even 5 minutes',
+      'journal — what\'s on your mind?',
+      'sit with a thought, no distractions',
+      'read something philosophical',
+      'reflect: what do I want more of?',
+    ]
+  },
+  {
+    id: 'relationships',
+    title: 'relationships',
+    color: '#9b8fe8',
+    cls: 'purple-section',
+    activities: [
+      'text someone you\'ve been meaning to',
+      'call a friend or family member',
+      'make plans with someone',
+      'send something that made you think of them',
+      'have an actual conversation, not a chat',
+    ]
+  },
+  {
+    id: 'input',
+    title: 'input & learning',
+    color: '#d4a342',
+    cls: 'amber-section',
+    activities: [
+      'read a book (even 10 pages)',
+      'watch a film you\'ve been putting off',
+      'listen to an album start to finish',
+      'look something up you\'ve been curious about',
+      'find new music intentionally',
+    ]
+  },
+  {
+    id: 'play',
+    title: 'play & exploration',
+    color: '#7ebe55',
+    cls: 'green-section',
+    activities: [
+      'play a game you actually enjoy',
+      'go somewhere new — even nearby',
+      'try something slightly uncomfortable',
+      'do something with no goal at all',
+      'explore a rabbit hole that interests you',
+    ]
+  },
+  {
+    id: 'community',
+    title: 'community & contribution',
+    color: '#e07ca0',
+    cls: 'pink-section',
+    activities: [
+      'post something meaningful',
+      'help someone with something',
+      'engage in a community or group',
+      'share something you made or found',
+      'show up somewhere you\'ve been avoiding',
+    ]
+  },
+  {
+    id: 'structure',
+    title: 'structure & stability',
+    color: '#9e9b94',
+    cls: 'gray-section',
+    activities: [
+      'tidy your space for 10 minutes',
+      'check your finances loosely',
+      'plan your week just enough',
+      'clear your inbox or messages',
+      'handle one thing you\'ve been putting off',
+    ]
+  }
+];
+
+const ALL_ACTIVITIES = SECTIONS.flatMap(s => s.activities.map(a => `${s.title}: ${a}`));
+
+let doneItems = JSON.parse(localStorage.getItem('done') || '{}');
+
+function saveDone() {
+  localStorage.setItem('done', JSON.stringify(doneItems));
+}
+
+function resetAll() {
+  doneItems = {};
+  saveDone();
+  document.querySelectorAll('.activity').forEach(el => el.classList.remove('done'));
+}
+
+function newNudge() {
+  const all = SECTIONS.flatMap(s => s.activities);
+  const pick = all[Math.floor(Math.random() * all.length)];
+  const el = document.getElementById('nudge-text');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = pick;
+    el.style.opacity = '1';
+  }, 150);
+}
+
+function renderSections() {
+  const grid = document.getElementById('sections-grid');
+  grid.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const section = document.createElement('div');
+    section.className = `section ${sec.cls}`;
+
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = `<div class="dot" style="background:${sec.color}"></div><span class="section-title">${sec.title}</span>`;
+    section.appendChild(head);
+
+    const acts = document.createElement('div');
+    acts.className = 'activities';
+
+    sec.activities.forEach(act => {
+      const key = sec.id + '::' + act;
+      const item = document.createElement('div');
+      item.className = 'activity' + (doneItems[key] ? ' done' : '');
+      item.textContent = act;
+      item.onclick = () => {
+        item.classList.toggle('done');
+        doneItems[key] = item.classList.contains('done');
+        saveDone();
+      };
+      acts.appendChild(item);
+    });
+
+    section.appendChild(acts);
+    grid.appendChild(section);
+  });
+}
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  document.getElementById('clock').textContent = `${h12}:${m}${ampm}`;
+
+  const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const d = days[now.getDay()];
+  const mo = months[now.getMonth()];
+  const dt = now.getDate();
+  document.getElementById('date-line').textContent = `${d}, ${mo} ${dt}`;
+}
+
+renderSections();
+newNudge();
+updateClock();
+setInterval(updateClock, 10000);
+</script>
+</body>
+</html>
